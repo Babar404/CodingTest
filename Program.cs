@@ -19,15 +19,13 @@ namespace SuppliesPriceLister
 
             List<ActualResult> results = new List<ActualResult>();
 
-            ReadFromCSVFile(results);
-            ReadFromJSONFile(results);
+            ReadFromCSVFile(results, _config["csvFilePath"]);
+            ReadFromJSONFile(results, _config["jsonFilePath"]);
             OrderByPriceDesc(results);
         }
 
-        private static void ReadFromCSVFile(List<ActualResult> actualResults)
+        private static void ReadFromCSVFile(List<ActualResult> actualResults, string file)
         {
-            string file = "..\\..\\..\\humphries.csv";
-
             try
             {
                 using (StreamReader sr = new StreamReader(file))
@@ -49,10 +47,8 @@ namespace SuppliesPriceLister
             }
         }
 
-        private static void ReadFromJSONFile(List<ActualResult> actualResults)
+        private static void ReadFromJSONFile(List<ActualResult> actualResults, string file)
         {
-            string file = "..\\..\\..\\megacorp.json";
-
             try
             {
                 string jsonText = File.ReadAllText(file);
