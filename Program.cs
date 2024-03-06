@@ -21,7 +21,7 @@ namespace SuppliesPriceLister
 
             ReadFromCSVFile(results);
             ReadFromJSONFile(results);
-
+            OrderByPriceDesc(results);
         }
 
         private static void ReadFromCSVFile(List<ActualResult> actualResults)
@@ -74,6 +74,36 @@ namespace SuppliesPriceLister
                         Price = Math.Round((x.PriceInCents * 0.01) / Double.Parse(_config["audUsdExchangeRate"]), 2),
                     });
                 });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+        }
+
+        private static void OrderByPriceDesc(List<ActualResult> actualResults)
+        {
+            try
+            {
+                var sortedListBasedonPrice = actualResults.OrderByDescending(x => x.Price).ToList();
+                actualResults = sortedListBasedonPrice;
+
+                Display(actualResults);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+        }
+
+        private static void Display(List<ActualResult> actualResults)
+        {
+            try
+            {
+                foreach (var item in actualResults)
+                {
+                    Console.WriteLine($"Id: {item.Id}, Description: {item.Name}, Price: ${item.Price}");
+                };
             }
             catch (Exception e)
             {
