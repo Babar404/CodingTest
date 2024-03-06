@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using MyDataClass;
+using System.Linq;
 
 namespace SuppliesPriceLister
 {
@@ -18,6 +20,7 @@ namespace SuppliesPriceLister
             List<ActualResult> results = new List<ActualResult>();
 
             ReadFromCSVFile(results);
+            ReadFromJSONFile(results);
 
         }
 
@@ -39,6 +42,38 @@ namespace SuppliesPriceLister
                         }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error: " + e.Message);
+            }
+        }
+
+        private static void ReadFromJSONFile(List<ActualResult> actualResults)
+        {
+            string file = "..\\..\\..\\megacorp.json";
+
+            try
+            {
+                string jsonText = File.ReadAllText(file);
+                WrapperClass data = JsonSerializer.Deserialize<WrapperClass>(jsonText, new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+                var supplies = data.Partners.Select(x => x.Supplies).ToList();
+
+                List<Supply> suppliesArray = new List<Supply>();
+                foreach (var supplier in supplies)
+                {
+                    suppliesArray.AddRange(supplier);
+                }
+
+                suppliesArray.ForEach(x =>
+                {
+                    actualResults.Add(new ActualResult
+                    {
+                        Id = x.Id.ToString(),
+                        Name = x.Description,
+                        Price = Math.Round((x.PriceInCents * 0.01) / Double.Parse(_config["audUsdExchangeRate"]), 2),
+                    });
+                });
             }
             catch (Exception e)
             {
